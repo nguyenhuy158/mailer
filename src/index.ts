@@ -75,6 +75,13 @@ function shell(title: string, body: string): string {
   .badge.sent { color: var(--ok); background: color-mix(in srgb, var(--ok) 15%, transparent); }
   .badge.failed { color: var(--fail); background: color-mix(in srgb, var(--fail) 15%, transparent); }
   .id { font-size: 0.75rem; color: var(--muted); word-break: break-all; text-align: right; }
+  details.body { margin-top: 0.5rem; }
+  details.body summary { font-size: 0.8rem; color: var(--accent); cursor: pointer; }
+  details.body pre {
+    margin: 0.5rem 0 0; padding: 0.625rem; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 0.5rem; font-size: 0.75rem; white-space: pre-wrap; word-break: break-word;
+    max-height: 16rem; overflow-y: auto;
+  }
   .center-page {
     min-height: 100vh; display: flex; flex-direction: column; align-items: center;
     justify-content: center; text-align: center; padding: 1.5rem; gap: 0.75rem;
@@ -110,12 +117,22 @@ function renderLogsPage(rows: Record<string, unknown>[]): string {
     .map((row) => {
       const status = String(row.status);
       const idOrError = String(row.resend_id ?? row.error ?? "");
+      const bodyText = row.body ? String(row.body) : "";
+      // <pre> hien nguyen van, khong render HTML sống — day la log noi bo,
+      // khong phai hop thu, xem source html thay vi ket qua render la du.
+      const bodyDetails = bodyText
+        ? `<details class="body">
+            <summary>Xem nội dung</summary>
+            <pre>${escapeHtml(bodyText)}</pre>
+          </details>`
+        : "";
       return `<div class="card">
         <div class="row">
           <span class="to">${escapeHtml(String(row.to_address))}</span>
           <span class="time">${escapeHtml(String(row.created_at))}</span>
         </div>
         <div class="subject">${escapeHtml(String(row.subject))}</div>
+        ${bodyDetails}
         <div class="meta">
           <span class="badge ${status}">${escapeHtml(status)}</span>
           <span class="id">${escapeHtml(idOrError)}</span>
@@ -217,14 +234,21 @@ app.post("/send", async (c) => {
 
   const data = (await res.json()) as { id?: string };
   const to = Array.isArray(body.to) ? body.to.join(", ") : body.to;
+  const sentBody = body.html || body.text || "";
 
   if (!res.ok) {
     console.error("Resend error:", data);
-    await logSend(c.env.DB, { to, subject: body.subject, status: "failed", error: JSON.stringify(data) });
+    await logSend(c.env.DB, {
+      to,
+      subject: body.subject,
+      status: "failed",
+      error: JSON.stringify(data),
+      body: sentBody,
+    });
     return c.json({ error: "send_failed", detail: data }, 502);
   }
 
-  await logSend(c.env.DB, { to, subject: body.subject, status: "sent", resendId: data.id });
+  await logSend(c.env.DB, { to, subject: body.subject, status: "sent", resendId: data.id, body: sentBody });
   return c.json({ id: data.id });
 });
 
@@ -235,12 +259,19 @@ app.post("/send", async (c) => {
  */
 async function logSend(
   db: D1Database,
-  entry: { to: string; subject: string; status: "sent" | "failed"; resendId?: string; error?: string },
+  entry: {
+    to: string;
+    subject: string;
+    status: "sent" | "failed";
+    resendId?: string;
+    error?: string;
+    body?: string;
+  },
 ) {
   try {
     await db
       .prepare(
-        "INSERT INTO mailer_sent_emails (id, to_address, subject, status, resend_id, error, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO mailer_sent_emails (id, to_address, subject, status, resend_id, error, body, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
       )
       .bind(
         crypto.randomUUID(),
@@ -249,6 +280,7 @@ async function logSend(
         entry.status,
         entry.resendId || null,
         entry.error || null,
+        entry.body || null,
         new Date().toISOString(),
       )
       .run();

@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS mailer_sent_emails (
   status TEXT NOT NULL, -- "sent" | "failed"
   resend_id TEXT,
   error TEXT,
+  body TEXT,
   created_at TEXT NOT NULL
 );
 
