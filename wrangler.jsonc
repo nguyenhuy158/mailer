@@ -7,11 +7,16 @@
   "observability": {
     "enabled": true
   },
-  // No routes, and workers_dev is off: this Worker is reachable only via a
-  // Service Binding from other Workers in this account, never the public web.
+  // Chi bat mot custom domain cho trang xem log (GET /), khong bat workers_dev:
+  // /send van chi goi duoc qua Service Binding + Bearer INTERNAL_API_KEY,
+  // route nay khong lam ho yeu di, no chi cho / co the vao tu ngoai.
   "workers_dev": false,
+  "routes": [{ "pattern": "mail.huyab.click", "custom_domain": true }],
   "vars": {
-    "DEFAULT_FROM": "noreply@huyab.click"
+    "DEFAULT_FROM": "noreply@huyab.click",
+    "SSO_ISSUER": "https://auth.huyab.click",
+    // Duy nhat email nay duoc xem trang log; ai khac dang nhap SSO cung bi 403.
+    "ADMIN_EMAIL": "ntqhuy2k2@gmail.com"
   },
   "d1_databases": [
     {

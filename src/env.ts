@@ -12,6 +12,10 @@ export interface Env {
    * outside this account holds still stops that from being an open relay.
    */
   INTERNAL_API_KEY?: string;
+  /** Base URL cua SSO, dung cho trang xem log (GET /). */
+  SSO_ISSUER: string;
+  /** Duy nhat email nay duoc xem trang log qua SSO. */
+  ADMIN_EMAIL: string;
 }
 
 export function required(value: string | undefined, name: string): string {
