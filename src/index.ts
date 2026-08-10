@@ -9,6 +9,29 @@ function escapeHtml(value: string): string {
 }
 
 /**
+ * Bao thu don gian tren nen tron gradient — cung tong mau accent (#4338ca)
+ * voi UI. SVG, khong can build step, nen dark mode cua he thong (favicon
+ * tab) van doc duoc vi nen co vien bo tron va do tuong phan cao.
+ */
+const FAVICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6366f1" />
+      <stop offset="1" stop-color="#4338ca" />
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#g)" />
+  <path d="M12 20a4 4 0 0 1 4-4h32a4 4 0 0 1 4 4v24a4 4 0 0 1-4 4H16a4 4 0 0 1-4-4Z" fill="#ffffff" fill-opacity="0.95" />
+  <path d="M12.8 19 32 34 51.2 19" fill="none" stroke="#4338ca" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>`;
+
+app.get("/favicon.svg", (c) => {
+  c.header("Content-Type", "image/svg+xml");
+  c.header("Cache-Control", "public, max-age=86400");
+  return c.body(FAVICON_SVG);
+});
+
+/**
  * Mot shell chung cho moi trang HTML (log, 401, 403, 404, 500) de CSS va
  * viewport meta khong lap lai o tung ham render. Mobile-first: khong co
  * bang cung nhat, cards xep doc tren man hinh nho, chi rong ra 2 cot khi
@@ -20,6 +43,7 @@ function shell(title: string, body: string): string {
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <title>${escapeHtml(title)}</title>
 <style>
   :root {
