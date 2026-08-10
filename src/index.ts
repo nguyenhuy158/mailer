@@ -8,41 +8,129 @@ function escapeHtml(value: string): string {
   return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-function renderLogsPage(rows: Record<string, unknown>[]): string {
-  const tableRows = rows
-    .map((row) => {
-      const status = String(row.status);
-      const badge = status === "sent" ? "#16a34a" : "#dc2626";
-      return `<tr>
-        <td>${escapeHtml(String(row.created_at))}</td>
-        <td>${escapeHtml(String(row.to_address))}</td>
-        <td>${escapeHtml(String(row.subject))}</td>
-        <td style="color:${badge};font-weight:600">${escapeHtml(status)}</td>
-        <td>${escapeHtml(String(row.resend_id ?? row.error ?? ""))}</td>
-      </tr>`;
-    })
-    .join("\n");
-
+/**
+ * Mot shell chung cho moi trang HTML (log, 401, 403, 404, 500) de CSS va
+ * viewport meta khong lap lai o tung ham render. Mobile-first: khong co
+ * bang cung nhat, cards xep doc tren man hinh nho, chi rong ra 2 cot khi
+ * co du cho (min-width 640px).
+ */
+function shell(title: string, body: string): string {
   return `<!doctype html>
 <html lang="vi">
 <head>
 <meta charset="utf-8" />
-<title>mailer — send log</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>${escapeHtml(title)}</title>
 <style>
-  body { font-family: system-ui, sans-serif; margin: 2rem; color: #1c1c1c; }
-  table { border-collapse: collapse; width: 100%; font-size: 0.875rem; }
-  th, td { border-bottom: 1px solid #e5e5e5; padding: 0.5rem 0.75rem; text-align: left; }
-  th { color: #666; font-weight: 500; }
+  :root {
+    color-scheme: light dark;
+    --bg: #fafafa;
+    --card: #ffffff;
+    --border: #e5e5e5;
+    --text: #1c1c1c;
+    --muted: #6b7280;
+    --accent: #4338ca;
+    --ok: #16a34a;
+    --fail: #dc2626;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #111113;
+      --card: #1a1a1d;
+      --border: #2a2a2e;
+      --text: #f2f2f2;
+      --muted: #9a9aa2;
+      --accent: #a5b4fc;
+      --ok: #4ade80;
+      --fail: #f87171;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 1.25rem 1rem 3rem; }
+  h1 { font-size: 1.125rem; font-weight: 600; margin: 0 0 1rem; }
+  .empty { color: var(--muted); font-size: 0.9rem; padding: 2rem 0; text-align: center; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    padding: 0.875rem 1rem;
+    margin-bottom: 0.625rem;
+  }
+  .row { display: flex; justify-content: space-between; gap: 0.75rem; align-items: baseline; }
+  .to { font-weight: 600; font-size: 0.9rem; word-break: break-all; }
+  .time { color: var(--muted); font-size: 0.75rem; white-space: nowrap; }
+  .subject { font-size: 0.875rem; margin-top: 0.25rem; color: var(--text); }
+  .meta { display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; gap: 0.5rem; }
+  .badge {
+    font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em;
+    padding: 0.15rem 0.5rem; border-radius: 999px;
+  }
+  .badge.sent { color: var(--ok); background: color-mix(in srgb, var(--ok) 15%, transparent); }
+  .badge.failed { color: var(--fail); background: color-mix(in srgb, var(--fail) 15%, transparent); }
+  .id { font-size: 0.75rem; color: var(--muted); word-break: break-all; text-align: right; }
+  .center-page {
+    min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; text-align: center; padding: 1.5rem; gap: 0.75rem;
+  }
+  .center-page .code { font-size: 2.5rem; font-weight: 700; color: var(--muted); }
+  .center-page p { color: var(--muted); margin: 0; font-size: 0.9rem; }
+  a.button {
+    display: inline-block; margin-top: 0.5rem; padding: 0.6rem 1.25rem; border-radius: 0.5rem;
+    background: var(--accent); color: white; text-decoration: none; font-size: 0.9rem; font-weight: 600;
+  }
+  @media (min-width: 640px) {
+    .wrap { padding-top: 2rem; }
+  }
 </style>
 </head>
-<body>
-<h1>mailer — nhật ký gửi email</h1>
-<table>
-  <thead><tr><th>Lúc</th><th>To</th><th>Subject</th><th>Trạng thái</th><th>Resend id / lỗi</th></tr></thead>
-  <tbody>${tableRows || '<tr><td colspan="5">Chưa có email nào.</td></tr>'}</tbody>
-</table>
-</body>
+<body>${body}</body>
 </html>`;
+}
+
+function centerPage(code: string, message: string, action?: string): string {
+  return shell(
+    `${code} — mailer`,
+    `<div class="center-page">
+      <div class="code">${escapeHtml(code)}</div>
+      <p>${escapeHtml(message)}</p>
+      ${action || ""}
+    </div>`,
+  );
+}
+
+function renderLogsPage(rows: Record<string, unknown>[]): string {
+  const cards = rows
+    .map((row) => {
+      const status = String(row.status);
+      const idOrError = String(row.resend_id ?? row.error ?? "");
+      return `<div class="card">
+        <div class="row">
+          <span class="to">${escapeHtml(String(row.to_address))}</span>
+          <span class="time">${escapeHtml(String(row.created_at))}</span>
+        </div>
+        <div class="subject">${escapeHtml(String(row.subject))}</div>
+        <div class="meta">
+          <span class="badge ${status}">${escapeHtml(status)}</span>
+          <span class="id">${escapeHtml(idOrError)}</span>
+        </div>
+      </div>`;
+    })
+    .join("\n");
+
+  return shell(
+    "mailer — nhật ký gửi email",
+    `<div class="wrap">
+      <h1>Nhật ký gửi email</h1>
+      ${cards || '<div class="empty">Chưa có email nào.</div>'}
+    </div>`,
+  );
 }
 
 interface SendRequest {
@@ -72,10 +160,13 @@ app.get("/", async (c) => {
 
   if (!claims) {
     const loginUrl = ssoLoginUrl(c.env.SSO_ISSUER, c.req.url);
-    return c.html(`<a href="${loginUrl}">Đăng nhập để xem log</a>`, 401);
+    return c.html(
+      centerPage("401", "Cần đăng nhập để xem nhật ký gửi email.", `<a class="button" href="${loginUrl}">Đăng nhập</a>`),
+      401,
+    );
   }
   if (claims.email !== c.env.ADMIN_EMAIL) {
-    return c.text("Forbidden", 403);
+    return c.html(centerPage("403", "Tài khoản này không có quyền xem trang này."), 403);
   }
 
   const { results } = await c.env.DB.prepare(
@@ -165,5 +256,18 @@ async function logSend(
     console.error("Failed to log send to D1:", error);
   }
 }
+
+/**
+ * 404/500 chi anh huong duong duyet web (/, cac path la); /send van tra JSON
+ * nhu truoc — cac app goi qua Service Binding khong doc trang HTML nay.
+ */
+app.notFound((c) =>
+  c.html(centerPage("404", "Không có trang nào ở đây.", `<a class="button" href="/">Về trang chủ</a>`), 404),
+);
+
+app.onError((error, c) => {
+  console.error("Unhandled error:", error);
+  return c.html(centerPage("500", "Có lỗi xảy ra, thử lại sau."), 500);
+});
 
 export default app;
