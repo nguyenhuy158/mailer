@@ -20,7 +20,7 @@ function isSendRequest(body: unknown): body is SendRequest {
   return toOk && typeof b.subject === "string" && (typeof b.html === "string" || typeof b.text === "string");
 }
 
-app.get("/", (c) => c.text("mailer"));
+app.get("/", (c) => c.json({ service: "mailer", status: "ok" }));
 
 /**
  * Single send endpoint for every relying app. Callers reach this over a
