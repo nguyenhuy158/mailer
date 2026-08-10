@@ -12,5 +12,13 @@
   "workers_dev": false,
   "vars": {
     "DEFAULT_FROM": "noreply@huyab.click"
-  }
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      // Shared voi sso/shopee-tracker, hence the mailer_ table prefix.
+      "database_name": "db",
+      "database_id": "6eb9cfce-f6f3-4476-8e46-7c8e954d93c1"
+    }
+  ]
 }

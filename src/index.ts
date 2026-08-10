@@ -62,11 +62,45 @@ app.post("/send", async (c) => {
   });
 
   const data = (await res.json()) as { id?: string };
+  const to = Array.isArray(body.to) ? body.to.join(", ") : body.to;
+
   if (!res.ok) {
     console.error("Resend error:", data);
+    await logSend(c.env.DB, { to, subject: body.subject, status: "failed", error: JSON.stringify(data) });
     return c.json({ error: "send_failed", detail: data }, 502);
   }
+
+  await logSend(c.env.DB, { to, subject: body.subject, status: "sent", resendId: data.id });
   return c.json({ id: data.id });
 });
+
+/**
+ * Ban ghi audit rieng cua mailer, khong phu thuoc Resend dashboard (retention
+ * gioi han, va la nguon ben ngoai). Loi ghi log khong duoc lam sap request
+ * gui thanh cong — chi console.error de con thay trong Observability.
+ */
+async function logSend(
+  db: D1Database,
+  entry: { to: string; subject: string; status: "sent" | "failed"; resendId?: string; error?: string },
+) {
+  try {
+    await db
+      .prepare(
+        "INSERT INTO mailer_sent_emails (id, to_address, subject, status, resend_id, error, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      )
+      .bind(
+        crypto.randomUUID(),
+        entry.to,
+        entry.subject,
+        entry.status,
+        entry.resendId || null,
+        entry.error || null,
+        new Date().toISOString(),
+      )
+      .run();
+  } catch (error) {
+    console.error("Failed to log send to D1:", error);
+  }
+}
 
 export default app;
