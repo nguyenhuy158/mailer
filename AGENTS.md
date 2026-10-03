@@ -14,9 +14,8 @@ Folder structure:
 
 ```text
 src/
-  index.ts         # Hono app: /favicon.svg, GET / (log page), POST /send, 404/500 pages
+  index.ts         # Hono app: /favicon.svg, GET / (log page, huyab_sso via @huyab/sso), POST /send, 404/500 pages
   env.ts           # Env bindings type (DB, secrets, vars) + required() guard
-  sso.ts           # huyab_sso cookie reader + JWT verification against the issuer JWKS
 schema.sql         # D1 schema for mailer_sent_emails (create-only; D1 is shared)
 e2e/               # HTTP smoke suites (plain fetch, no browser)
   run.mjs          #   `pnpm e2e`: wrangler dev with a local INTERNAL_API_KEY, both suites
@@ -57,7 +56,7 @@ Use TypeScript with strict compiler settings. Prefer named exports and type
 imports with `import type`. Follow the existing style: two-space indentation,
 double quotes, trailing commas, small top-level functions such as `escapeHtml`
 or `shell`. Do not leave magic strings or magic numbers in code; extract them
-into clearly named constants (see `COOKIE_NAME`, `EXPECTED_AUD` in `sso.ts`).
+into clearly named constants (see `SSO_AUDIENCE` in `index.ts`).
 Split complex logic into small, named functions with one clear responsibility.
 Escape every value rendered into HTML with `escapeHtml`.
 

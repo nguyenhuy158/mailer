@@ -1,6 +1,10 @@
+import { SSO_COOKIE, ssoUrl, verifySsoToken } from "@huyab/sso";
 import { Hono } from "hono";
+import { getCookie } from "hono/cookie";
 import { required, type Env } from "./env";
-import { readSsoCookie, ssoLoginUrl, verifySsoToken } from "./sso";
+
+/** Chi nhan token SSO cap cho ca domain (claim `aud` cua auth.huyab.click). */
+const SSO_AUDIENCE = "huyab.click";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -199,11 +203,14 @@ function isSendRequest(body: unknown): body is SendRequest {
  * lien quan gi den route nay, van chi goi duoc qua Service Binding.
  */
 app.get("/", async (c) => {
-  const token = readSsoCookie(c.req.raw.headers);
-  const claims = token ? await verifySsoToken(c.env.SSO_ISSUER, token) : null;
+  // Chi doc cookie, khong nhan Bearer: trang nay chi mo tu trinh duyet.
+  const token = getCookie(c, SSO_COOKIE);
+  const claims = token
+    ? await verifySsoToken(token, c.env.SSO_ISSUER, { audience: SSO_AUDIENCE })
+    : null;
 
   if (!claims) {
-    const loginUrl = ssoLoginUrl(c.env.SSO_ISSUER, c.req.url);
+    const loginUrl = ssoUrl(c.env.SSO_ISSUER, "/login", c.req.url);
     return c.html(
       centerPage("401", "Cần đăng nhập để xem nhật ký gửi email.", `<a class="button" href="${loginUrl}">Đăng nhập</a>`),
       401,

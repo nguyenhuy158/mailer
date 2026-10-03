@@ -18,6 +18,7 @@
     "e2e:prod": "E2E_BASE_URL=https://mail.huyab.click node e2e/readonly-smoke.mjs"
   },
   "dependencies": {
+    "@huyab/sso": "github:nguyenhuy158/kit#v0.1.0&path:packages/sso",
     "hono": "^4.6.14"
   },
   "devDependencies": {
