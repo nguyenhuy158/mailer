@@ -1,8 +1,9 @@
 # mailer
 
 Single Worker that sends transactional email via Resend, so no other app
-holds a `RESEND_API_KEY`. Not reachable from the public internet — no
-`routes`, `workers_dev` off — only via a Cloudflare Service Binding.
+holds a `RESEND_API_KEY`. `POST /send` is only callable via a Cloudflare
+Service Binding with the `INTERNAL_API_KEY` bearer token (`workers_dev` off);
+the only public route is the SSO-gated log page at `mail.huyab.click`.
 
 ## Setup
 
