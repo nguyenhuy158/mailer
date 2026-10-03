@@ -78,6 +78,18 @@ body in the log page` or `fix: reject requests without a bearer token`. Pull
 requests should include a short summary, typecheck results, linked issue if
 available, and screenshots for visible UI changes.
 
+## Ecosystem
+
+See the [huyab.click ecosystem map](https://github.com/nguyenhuy158/kit/blob/main/docs/ECOSYSTEM.md) for how all personal repos connect.
+
+- Kit packages: `@huyab/sso` (`verifySsoToken` with `audience: "huyab.click"`
+  for the log page cookie), `@huyab/e2e` (`startServer`, `run`, harness,
+  `assertLocalOnly` in `e2e/`), `@huyab/config` (Biome + tsconfig base),
+  reusable CI `nguyenhuy158/kit/.github/workflows/check.yml@v0.1.0`.
+- Talks to: sso (JWKS at `auth.huyab.click` for `GET /`), Resend API, shared
+  D1 `db` (`mailer_` prefix). Called by ai-english, chia-keo and monitor
+  through the `MAILER` Service Binding (`POST /send`, `INTERNAL_API_KEY`).
+
 ## Agent-Specific Instructions
 
 Keep responses short and focused. If a requirement is unclear, ask before making
