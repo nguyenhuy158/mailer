@@ -18,6 +18,10 @@ src/
   env.ts           # Env bindings type (DB, secrets, vars) + required() guard
   sso.ts           # huyab_sso cookie reader + JWT verification against the issuer JWKS
 schema.sql         # D1 schema for mailer_sent_emails (create-only; D1 is shared)
+e2e/               # HTTP smoke suites (plain fetch, no browser)
+  run.mjs          #   `pnpm e2e`: wrangler dev with a local INTERNAL_API_KEY, both suites
+  readonly-smoke.mjs #   GET-only checks, also run against prod (`pnpm e2e:prod`)
+  dev-smoke.mjs    #   POST /send guard checks (401/400); never reaches Resend or prod
 wrangler.jsonc     # Worker config: vars, D1 binding, mail.huyab.click custom domain
 .dev.vars.example  # Template for local secrets (copy to .dev.vars)
 ```
@@ -36,6 +40,10 @@ prefix; `schema.sql` only ever creates tables, never drops them.
 - `pnpm lint`: run `biome check .` (formatter + recommended lint rules).
 - `pnpm format`: run `biome format --write .`. Format only the files you touch;
   do not mass-reformat unrelated code.
+- `pnpm e2e`: start `wrangler dev` on port 8792 (`E2E_PORT`) with a throwaway
+  `INTERNAL_API_KEY`, run both smoke suites, stop the server.
+- `pnpm e2e:prod`: run only the read-only suite against
+  <https://mail.huyab.click>.
 - `pnpm deploy`: `wrangler deploy` from a laptop. Pushing to `main` deploys
   through Cloudflare Workers Builds.
 
@@ -55,10 +63,14 @@ Escape every value rendered into HTML with `escapeHtml`.
 
 ## Testing Guidelines
 
-There is no automated test suite. Verify changes with `pnpm check` and
-`pnpm build`, then exercise `pnpm dev`: `POST /send` with the bearer token, check the
-row on the log page. If tests are added, prefer Vitest with colocated
-`*.test.ts` files.
+Coverage is HTTP smoke in `e2e/`. `pnpm e2e` runs `readonly-smoke.mjs` (401
+log page with the SSO link, favicon, 404 page) and `dev-smoke.mjs` (`POST /send`
+rejects a missing/wrong bearer and bad bodies) against `wrangler dev`; CI runs
+it in the `e2e` job. `pnpm e2e:prod` runs only the read-only suite: GET
+requests only, never `POST /send`. Sending real mail is not covered; verify it
+by hand with `pnpm dev` and a real `RESEND_API_KEY`, then check the row on the
+log page. Also run `pnpm check` and `pnpm build`. If unit tests are added,
+prefer Vitest with colocated `*.test.ts` files.
 
 ## Commit & Pull Request Guidelines
 

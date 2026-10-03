@@ -13,7 +13,9 @@
     "check": "tsc --noEmit",
     "lint": "biome check .",
     "format": "biome format --write .",
-    "deploy": "wrangler deploy"
+    "deploy": "wrangler deploy",
+    "e2e": "node e2e/run.mjs",
+    "e2e:prod": "E2E_BASE_URL=https://mail.huyab.click node e2e/readonly-smoke.mjs"
   },
   "dependencies": {
     "hono": "^4.6.14"
