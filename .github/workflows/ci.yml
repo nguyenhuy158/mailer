@@ -10,47 +10,11 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # No unit tests. `pnpm build` (`wrangler deploy --dry-run`) catches
+  # bundle-time errors the typecheck misses; `pnpm e2e` starts `wrangler dev`
+  # and runs the HTTP smoke suites (plain fetch, no browser).
   check:
-    name: Typecheck, build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Typecheck
-        run: pnpm check
-
-      # Bundle with `wrangler deploy --dry-run`: catches errors that only show
-      # up at bundle time (bad imports, config), without deploying.
-      - name: Build
-        run: pnpm build
-
-  e2e:
-    name: E2E smoke
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      # `pnpm e2e` starts `wrangler dev`, runs the HTTP smoke
-      # suites against it and stops it. No browser needed: plain fetch.
-      - name: E2E
-        run: pnpm e2e
+    uses: nguyenhuy158/kit/.github/workflows/check.yml@v0.1.0
+    with:
+      run-build: true
+      run-e2e: true
