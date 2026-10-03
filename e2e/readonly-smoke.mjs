@@ -1,7 +1,7 @@
 // Smoke CHI DOC: chi GET, khong goi /send, khong ghi gi. An toan de chay vao
 // production (`pnpm e2e:prod`, mail.huyab.click); `pnpm e2e` chay no truoc
 // voi server local de dev va prod dung chung mot bo kiem tra.
-import { assert, BASE, expectStatus, finish, request, test } from "./harness.mjs";
+import { assert, BASE, expectStatus, finish, request, test } from "@huyab/e2e";
 
 const SSO_LOGIN = "https://auth.huyab.click/login?redirect_uri=";
 

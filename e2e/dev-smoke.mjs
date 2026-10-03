@@ -1,9 +1,9 @@
 // Smoke CHI CHO DEV: goi POST /send de kiem lop bao ve (bearer + validate
 // body). Khong request nao toi duoc Resend: tat ca dung o 401/400 truoc buoc
 // gui. Van khong bao gio chay vao production; `pnpm e2e` chi chay voi local.
-import { assert, BASE, expectStatus, finish, request, test } from "./harness.mjs";
+import { assert, assertLocalOnly, BASE, expectStatus, finish, request, test } from "@huyab/e2e";
 
-assert(!BASE.startsWith("https://"), `dev smoke goi POST /send; tu choi chay vao ${BASE}`);
+assertLocalOnly();
 
 const KEY = process.env.E2E_INTERNAL_API_KEY;
 assert(KEY, "thieu E2E_INTERNAL_API_KEY (chay qua `pnpm e2e`)");
