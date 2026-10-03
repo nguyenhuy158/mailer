@@ -8,9 +8,9 @@ the only public route is the SSO-gated log page at `mail.huyab.click`.
 ## Setup
 
 ```
-npm install
-wrangler secret put RESEND_API_KEY
-wrangler secret put INTERNAL_API_KEY   # any random string; shared with callers below
+pnpm install
+pnpm exec wrangler secret put RESEND_API_KEY
+pnpm exec wrangler secret put INTERNAL_API_KEY   # any random string; shared with callers below
 ```
 
 Deploys happen automatically on push to `main` via Cloudflare Workers Builds.

@@ -1,0 +1,9 @@
+# wrangler needs both binaries: esbuild to bundle, workerd to run `wrangler dev`.
+# `allowBuilds` is the pnpm 11 name; `onlyBuiltDependencies` is kept so an older
+# pnpm in CI honours the same list.
+allowBuilds:
+  esbuild: true
+  workerd: true
+onlyBuiltDependencies:
+  - esbuild
+  - workerd

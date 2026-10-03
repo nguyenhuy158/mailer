@@ -27,15 +27,21 @@ prefix; `schema.sql` only ever creates tables, never drops them.
 
 ## Build, Test, and Development Commands
 
-- `npm install`: install project dependencies.
-- `npm run dev`: run `wrangler dev` (needs `.dev.vars`, copy from
+- `pnpm install`: install project dependencies.
+- `pnpm dev`: run `wrangler dev` (needs `.dev.vars`, copy from
   `.dev.vars.example`).
-- `npm run typecheck`: run `tsc --noEmit`.
-- `npm run deploy`: `wrangler deploy` from a laptop. Pushing to `main` deploys
+- `pnpm check`: run `tsc --noEmit`.
+- `pnpm build`: bundle without deploying (`wrangler deploy --dry-run`, output
+  in `dist/`); catches bundling errors the typecheck misses.
+- `pnpm lint`: run `biome check .` (formatter + recommended lint rules).
+- `pnpm format`: run `biome format --write .`. Format only the files you touch;
+  do not mass-reformat unrelated code.
+- `pnpm deploy`: `wrangler deploy` from a laptop. Pushing to `main` deploys
   through Cloudflare Workers Builds.
 
-Secrets are set with `wrangler secret put RESEND_API_KEY` and
-`wrangler secret put INTERNAL_API_KEY`.
+Use `pnpm` for all package commands (`pnpm exec wrangler ...`, never `npx`).
+Secrets are set with `pnpm exec wrangler secret put RESEND_API_KEY` and
+`pnpm exec wrangler secret put INTERNAL_API_KEY`.
 
 ## Coding Style & Naming Conventions
 
@@ -49,8 +55,8 @@ Escape every value rendered into HTML with `escapeHtml`.
 
 ## Testing Guidelines
 
-There is no automated test suite. Verify changes with the typecheck script and
-by exercising `wrangler dev`: `POST /send` with the bearer token, then check the
+There is no automated test suite. Verify changes with `pnpm check` and
+`pnpm build`, then exercise `pnpm dev`: `POST /send` with the bearer token, check the
 row on the log page. If tests are added, prefer Vitest with colocated
 `*.test.ts` files.
 
