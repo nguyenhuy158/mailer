@@ -16,7 +16,7 @@ Folder structure:
 src/
   index.ts         # Hono app: /favicon.svg, GET / (log page, huyab_sso via @huyab/sso), POST /send, 404/500 pages
   env.ts           # Env bindings type (DB, secrets, vars) + required() guard
-schema.sql         # D1 schema for mailer_sent_emails (create-only; D1 is shared)
+migrations/        # D1 migrations for mailer_sent_emails (create-only; D1 is shared), history in mailer_migrations
 e2e/               # HTTP smoke suites (plain fetch, no browser; harness from @huyab/e2e)
   run.mjs          #   `pnpm e2e`: wrangler dev with a local INTERNAL_API_KEY, both suites
   readonly-smoke.mjs #   GET-only checks, also run against prod (`pnpm e2e:prod`)
@@ -26,7 +26,8 @@ wrangler.jsonc     # Worker config: vars, D1 binding, mail.huyab.click custom do
 ```
 
 The D1 database is shared with sso/shopee-tracker, hence the `mailer_` table
-prefix; `schema.sql` only ever creates tables, never drops them.
+prefix; migrations only ever create tables, never drop them. Apply with
+`pnpm exec wrangler d1 migrations apply db --remote`.
 
 ## Build, Test, and Development Commands
 
