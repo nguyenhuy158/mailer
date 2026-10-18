@@ -1,5 +1,5 @@
 export interface Env {
-  /** Shared voi sso/shopee-tracker; xem schema.sql cho bang mailer_sent_emails. */
+  /** Shared voi sso/shopee-tracker; xem migrations/ cho bang mailer_sent_emails. */
   DB: D1Database;
   /** Resend API key, set with: wrangler secret put RESEND_API_KEY */
   RESEND_API_KEY?: string;
