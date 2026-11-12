@@ -3,8 +3,8 @@ import { Hono } from "hono";
 import { getCookie } from "hono/cookie";
 import { required, type Env } from "./env";
 
-/** Chi nhan token SSO cap cho ca domain (claim `aud` cua auth.huyab.click). */
-const SSO_AUDIENCE = "huyab.click";
+/** Chi nhan token SSO cap cho ca domain (claim `aud` cua auth.huyab.cfd). */
+const SSO_AUDIENCE = "huyab.cfd";
 
 const app = new Hono<{ Bindings: Env }>();
 

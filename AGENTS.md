@@ -6,7 +6,7 @@ mailer is a single Cloudflare Worker (Hono) that sends transactional email via
 Resend, so no other app holds a `RESEND_API_KEY`. Other Workers call
 `POST /send` through a Cloudflare Service Binding with a shared
 `INTERNAL_API_KEY` bearer token. The only public surface is an SSO-gated log
-page at <https://mail.huyab.click> (`GET /`), restricted to `ADMIN_EMAIL`.
+page at <https://mail.huyab.cfd> (`GET /`), restricted to `ADMIN_EMAIL`.
 `workers_dev` is off. HTML is rendered server-side from template strings; there
 is no build step and no client bundle.
 
@@ -21,7 +21,7 @@ e2e/               # HTTP smoke suites (plain fetch, no browser; harness from @h
   run.mjs          #   `pnpm e2e`: wrangler dev with a local INTERNAL_API_KEY, both suites
   readonly-smoke.mjs #   GET-only checks, also run against prod (`pnpm e2e:prod`)
   dev-smoke.mjs    #   POST /send guard checks (401/400); assertLocalOnly, never reaches Resend or prod
-wrangler.jsonc     # Worker config: vars, D1 binding, mail.huyab.click custom domain
+wrangler.jsonc     # Worker config: vars, D1 binding, mail.huyab.cfd custom domain
 .dev.vars.example  # Template for local secrets (copy to .dev.vars)
 ```
 
@@ -43,7 +43,7 @@ prefix; migrations only ever create tables, never drop them. Apply with
 - `pnpm e2e`: start `wrangler dev` on port 8792 (`E2E_PORT`) with a throwaway
   `INTERNAL_API_KEY`, run both smoke suites, stop the server.
 - `pnpm e2e:prod`: run only the read-only suite against
-  <https://mail.huyab.click>.
+  <https://mail.huyab.cfd>.
 - `pnpm deploy`: `wrangler deploy` from a laptop. Pushing to `main` deploys
   through Cloudflare Workers Builds.
 
@@ -81,13 +81,13 @@ available, and screenshots for visible UI changes.
 
 ## Ecosystem
 
-See the [huyab.click ecosystem map](https://github.com/nguyenhuy158/kit/blob/main/docs/ECOSYSTEM.md) for how all personal repos connect.
+See the [huyab.cfd ecosystem map](https://github.com/nguyenhuy158/kit/blob/main/docs/ECOSYSTEM.md) for how all personal repos connect.
 
-- Kit packages: `@huyab/sso` (`verifySsoToken` with `audience: "huyab.click"`
+- Kit packages: `@huyab/sso` (`verifySsoToken` with `audience: "huyab.cfd"`
   for the log page cookie), `@huyab/e2e` (`startServer`, `run`, harness,
   `assertLocalOnly` in `e2e/`), `@huyab/config` (Biome + tsconfig base),
   reusable CI `nguyenhuy158/kit/.github/workflows/check.yml@v0.1.0`.
-- Talks to: sso (JWKS at `auth.huyab.click` for `GET /`), Resend API, shared
+- Talks to: sso (JWKS at `auth.huyab.cfd` for `GET /`), Resend API, shared
   D1 `db` (`mailer_` prefix). Called by ai-english, chia-keo and monitor
   through the `MAILER` Service Binding (`POST /send`, `INTERNAL_API_KEY`).
 
