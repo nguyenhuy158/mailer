@@ -13,7 +13,7 @@
   "workers_dev": false,
   "routes": [{ "pattern": "mail.huyab.cfd", "custom_domain": true }],
   "vars": {
-    "DEFAULT_FROM": "noreply@huyab.click",
+    "DEFAULT_FROM": "noreply@huyab.cfd",
     "SSO_ISSUER": "https://auth.huyab.cfd",
     // Duy nhat email nay duoc xem trang log; ai khac dang nhap SSO cung bi 403.
     "ADMIN_EMAIL": "ntqhuy2k2@gmail.com"
