@@ -1,6 +1,9 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.5.15/schema.json",
   "extends": ["@huyab/config/biome.json"],
+  "files": {
+    "includes": ["!src/build-info.generated.ts"]
+  },
   "formatter": {
     "lineWidth": 100
   }

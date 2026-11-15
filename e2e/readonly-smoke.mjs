@@ -29,6 +29,22 @@ await test("path la tra trang 404", async () => {
   assert((await response.text()).includes("Không có trang nào ở đây."), "thieu trang 404");
 });
 
+await test("GET /api/version tra build info, khong can dang nhap", async () => {
+  const response = await request("/api/version");
+  expectStatus(response, 200);
+  const body = await response.json();
+  for (const key of ["commit", "shortCommit", "branch", "builtBy", "dirty", "builtAt"]) {
+    assert(key in body, `thieu truong ${key}`);
+  }
+  assert(typeof body.commit === "string" && body.commit.length > 0, "commit rong");
+});
+
+await test("GET /api/health tra ok:true, khong can dang nhap", async () => {
+  const response = await request("/api/health");
+  expectStatus(response, 200);
+  assert((await response.json()).ok === true, "ok khac true");
+});
+
 await test("GET /send khong ton tai (chi POST)", async () => {
   expectStatus(await request("/send"), 404);
 });

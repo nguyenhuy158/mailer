@@ -1,12 +1,30 @@
 import { SSO_COOKIE, ssoUrl, verifySsoToken } from "@huyab/sso";
 import { Hono } from "hono";
 import { getCookie } from "hono/cookie";
-import { required, type Env } from "./env";
+import { BUILD_INFO } from "./build-info";
+import { type Env, required } from "./env";
 
 /** Chi nhan token SSO cap cho ca domain (claim `aud` cua auth.huyab.cfd). */
 const SSO_AUDIENCE = "huyab.cfd";
 
+const VERSION_PATH = "/api/version";
+const HEALTH_PATH = "/api/health";
+const HEALTH_PROBE_SQL = "SELECT 1";
+const HEALTH_FAILURE_HINT = "D1 binding DB is not answering; check the database and migrations";
+
 const app = new Hono<{ Bindings: Env }>();
+
+app.get(VERSION_PATH, (c) => c.json(BUILD_INFO));
+
+app.get(HEALTH_PATH, async (c) => {
+  try {
+    await c.env.DB.prepare(HEALTH_PROBE_SQL).first();
+    return c.json({ ok: true });
+  } catch (error) {
+    console.error("Health check failed:", error);
+    return c.json({ ok: false, hint: HEALTH_FAILURE_HINT }, 500);
+  }
+});
 
 function escapeHtml(value: string): string {
   return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");

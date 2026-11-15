@@ -8,14 +8,15 @@
     "node": ">=22"
   },
   "scripts": {
-    "dev": "wrangler dev",
-    "build": "wrangler deploy --dry-run --outdir dist",
-    "check": "tsc --noEmit",
+    "dev": "node scripts/build-info.mjs && wrangler dev",
+    "build": "node scripts/build-info.mjs && wrangler deploy --dry-run --outdir dist",
+    "check": "node scripts/build-info.mjs && tsc --noEmit",
     "lint": "biome check .",
     "format": "biome format --write .",
-    "deploy": "wrangler deploy",
-    "e2e": "node e2e/run.mjs",
-    "e2e:prod": "E2E_BASE_URL=https://mail.huyab.cfd node e2e/readonly-smoke.mjs"
+    "deploy": "node scripts/build-info.mjs && wrangler deploy",
+    "e2e": "node scripts/build-info.mjs && node e2e/run.mjs",
+    "e2e:prod": "E2E_BASE_URL=https://mail.huyab.cfd node e2e/readonly-smoke.mjs",
+    "test": "node scripts/build-info.mjs && vitest run"
   },
   "dependencies": {
     "@huyab/sso": "github:nguyenhuy158/kit#v0.2.0&path:packages/sso",
@@ -27,6 +28,7 @@
     "@huyab/config": "github:nguyenhuy158/kit#v0.2.0&path:packages/config",
     "@huyab/e2e": "github:nguyenhuy158/kit#v0.2.0&path:packages/e2e",
     "typescript": "^5.7.2",
-    "wrangler": "^4.0.0"
+    "wrangler": "^4.0.0",
+    "vitest": "^4.1.9"
   }
 }
