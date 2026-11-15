@@ -20,3 +20,27 @@ coverage/
 .DS_Store
 .idea/
 .vscode/
+
+# Environment / secrets
+!.env.example
+
+# More build and test output
+.eslintcache
+.turbo/
+.vite/
+.cache/
+playwright-report/
+test-results/
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS and editor files
+Thumbs.db
+*.swp
+*~
+
+# Claude Code local files
+.claude/settings.local.json
+CLAUDE.local.md
