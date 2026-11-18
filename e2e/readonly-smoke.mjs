@@ -23,6 +23,12 @@ await test("favicon la SVG", async () => {
   assert((await response.text()).startsWith("<svg"), "body khong phai SVG");
 });
 
+await test("favicon PNG 32px", async () => {
+  const response = await request("/favicon-32.png");
+  expectStatus(response, 200);
+  assert(response.headers.get("content-type")?.startsWith("image/png"), "sai content type");
+});
+
 await test("path la tra trang 404", async () => {
   const response = await request("/e2e-no-such-page");
   expectStatus(response, 404);
