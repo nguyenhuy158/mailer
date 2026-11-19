@@ -8,6 +8,9 @@ dist/
 coverage/
 *.tsbuildinfo
 
+# Generated at build time by scripts/build-info.mjs
+src/build-info.generated.ts
+
 # Environment / secrets
 .env*
 .dev.vars*
